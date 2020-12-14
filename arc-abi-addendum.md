@@ -121,13 +121,13 @@ Defines the intended use of the produced object. This attribute is
 required. An absent value will cause errors when linking with anything
 else than absent/non standard.
 
-Value | Attribute name | Default | Allowed Values | Meaning
-------|----------------|---------|----------------|--------
-4     | Tag_ARC_PCS_config | Default | 0 | Absent/Non standard
-      |                |         | 1 | Bare-metal/mwdt
-      |                |         | 2 | Bare-metal/newlib
-      |                |         | 3 | Linux/uclibc
-      |                |         | 4 | Linux/glibc
+|Value | Attribute name | Default | Allowed Values | Meaning
+|------|----------------|---------|----------------|--------
+|4     | Tag_ARC_PCS_config | Default | 0 | Absent/Non standard
+| ||| 1 | Bare-metal/mwdt
+| ||| 2 | Bare-metal/newlib
+| ||| 3 | Linux/uclibc
+| ||| 4 | Linux/glibc
 
 
 
