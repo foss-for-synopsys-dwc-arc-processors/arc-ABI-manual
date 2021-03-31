@@ -377,9 +377,10 @@ Enum  | Hex | ELF Reloc Type       | Description               | Details
 95    |0x5f | R_ARC_SDA_LDST3      | SDA relocation            | disp9ls = (S + A - \_SDA\_BASE\_) >> 3
 96    |0x60 | R_ARC_NLO32          | Absolute address          | word32 = *P - ((S+A) & 0xffffffff) 
 97    |0x61 | R_ARC_NLO32_ME       | Absolute address          | word32 = ME(*P - ((S+A) & 0xffffffff))
-98    |0x62 | R_ARC_PCREL_HI32_ME  | PC-relative address       | word32 = ME ((S + A - P ) >> 32 + sign (S+A-P))
-99    |0x63 | R_ARC_PCREL_LO32_ME  | PC-relative address       | sext32 = ME ((S + A - P))
-100   |0x64 | R_ARC_PCREL_OFFSET   | PC-relative offset        | sext32 =  ME ( *P - (((S + A) & -3 + 2) - P))
+98    |0x62 | R_ARC_PCLo32_ME_2    | PC-relative address       | word32 = ME ((S + A - P ) >> 32 + sign (S+A-P))
+99    |0x63 | Reserved             | Reserved                  | N.A.
+100   |0x64 | R_ARC_JLI64_SECTOFF  | JLI offset                | u10 = ((S - <start of section>) + A) >> 2 
+101   |0x65 | R_ARC_S25W_PCREL_WCALL | PC-relative (weak)      | disp25w = (S + A - P) >> 2
 192-255 |     | *Reserved*         | Reserved for nonstandard ABI extensions |
 
 * **ARCv3**: Conflicting or duplicated relocations, needs to be resolved.
