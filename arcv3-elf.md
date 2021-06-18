@@ -381,6 +381,11 @@ Enum  | Hex | ELF Reloc Type       | Description               | Details
 99    |0x63 | R_ARC_PLT34          | PC-relative (PLT)         | word32 = ME ((L + A - P ) >> 2)
 100   |0x64 | R_ARC_JLI64_SECTOFF  | JLI offset                | u10 = ((S - <start of section>) + A) >> 2 
 101   |0x65 | R_ARC_S25W_PCREL_WCALL | PC-relative (weak)      | disp25w = (S + A - P) >> 2
+102   |0x66 | R_ARC_S32_PCREL_ME   | PC-relative               | word32 = (S + A) - ((P-4) & ~3)
+103   |0x67 | R_ARC_N32W           | Absolute address          |
+104   |0x68 | R_ARC_N32W_ME        | Absolute address          |
+105   |0x69 | R_ARC_NLO32W         | Absolute address          |
+106   |0x6a | R_ARC_NLO32W_ME      | Absolute address          |
 192-255 |     | *Reserved*         | Reserved for nonstandard ABI extensions |
 
 * **ARCv3**: Conflicting or duplicated relocations, needs to be resolved.
