@@ -52,9 +52,8 @@ r29     | ilink        | Interrupt link reg     | Yes
 r30     | gp           | Global/Thread pointer  | Yes (can be used as GPR)
 r31     | blink        | Return address         | No
 r32-r57 | r32-r57      | Extension registers    | No
-r31     | blink        | Return address         | No
-r58     | accl         | Accumulator low        | No
-r59     | acch         | Accumulator high       | No
+r58     | acc0         | The only accumulator   | No
+r59     | N.A.         | Reserved               | No
 r60     | slimm        | Signed-extended LIMM   | -- (Unallocatable)
 r61     | N.A.         | Reserved               | -- (Unallocatable)
 r60     | zlimm        | Zero-extended LIMM     | -- (Unallocatable)
