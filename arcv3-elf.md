@@ -160,10 +160,8 @@ f16-f31 | f16-f31      | Callee saved registers | Yes*
  be considered temporaries if targeting the base integer calling
  convention.
 
-:memo:
-
-Many other configurations of the FPU registers are possible. To keep it
-simple this table defines just the maximal configuration.
+:memo: Many other configurations of the FPU registers are possible. To keep it
+       simple this table defines just the maximal configuration.
 
 # <a name=procedure-calling-convention></a> Procedure Calling Convention
 ## <a name=integer-calling-convention></a> Integer Calling Convention
@@ -465,8 +463,7 @@ example, a four-bit field declared as int can hold values from -8 to
 `bitfield_types` shows the possible widths for bitfields, where w is
 maximum width (in bits).
 
-**Bit Field Type**       | **Max Width**      | **Range of Values**
-			 | **(Bits)**         |
+*Bit Field Type*         | *Max Width*        | *Range of Values*
 :------------------------|:-------------------|----------------------------
 signed char              | 1 to 8             | -2<sup>(w-1)</sup> to 2<sup>(w-1)</sup>-1
 char(default signedness) | 1 to 8             | 0 to 2^<sup>w</sup> - 1
@@ -628,12 +625,12 @@ variables.  The stack frame must be maintained using the frame pointer
 
 The high bits are used to select the Linux OSABI:
 
+Value  | Mnemonic    | Info
 :------|:------------|:-----------------------------
 0x000  |OSABI\_ORIG  |v2.6.35 kernel (sourceforge)
 0x200  |OSABI\_V2    |v3.2 kernel (sourceforge)
 0x300  |OSABI\_V3    |v3.9 kernel (sourceforge)
 0x400  |OSABI\_V4    |v24.8 kernel (sourceforge)
--------|-------------|------------------------------
 
 ## <a name=sections></a>Sections
 
@@ -702,21 +699,21 @@ User's Guide*.
 * .rodata\_in\_data    Read-only string constants when -Hharvard or -Hccm is
                        specified.
 
-*.sbss                 Uninitialized data, set to all zeros by startup code and
+* .sbss                Uninitialized data, set to all zeros by startup code and
                        directly accessible from the %gp register
 
 * .sdata               Initialized small data, directly accessible from the %gp
                        register, and small uninitialized variables
 
-*.stack                Stack information
+* .stack               Stack information
 
-*.text                 Executable code
+* .text                Executable code
 
-*.tls                  Thread-local data
+* .tls                 Thread-local data
 
-*.ucdata               Holds data accessed using cache bypass
+* .ucdata              Holds data accessed using cache bypass
 
-*.vectors              Interrupt vector table
+* .vectors              Interrupt vector table
 
 :exclamation:  Caution
 
