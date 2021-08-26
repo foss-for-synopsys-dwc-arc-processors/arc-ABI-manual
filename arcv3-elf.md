@@ -1387,3 +1387,8 @@ Dwarf Register Numbers <a name=dwarf-register-numbers>
 -------------------------------------------------------------------------
 Dwarf Number  | Register Name | Description
 --------------|---------------|-----------------------------------------
+0-31 | r0-r31 | Integer Core Registers
+32-57 | r32-r57 | Extension Core Registers
+58-127 | | Reserved
+128-159 | f0-f31 | Floating-point Registers
+
