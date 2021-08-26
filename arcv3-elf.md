@@ -1,9 +1,9 @@
 # ARCv3 ELF ABI specification
 
 ## Table of Contents
-1. [Low-Level System Information] (#low-level-sys-info)
-	* [Processor Architecture] (#processor-architecture)
-	* [Data Representation] (#data-representation)
+1. [Low-Level System Information](#low-level-sys-info)
+	* [Processor Architecture](#processor-architecture)
+	* [Data Representation](#data-representation)
 2. [Register Convention](#register-convention)
 	* [Integer Register Convention](#integer-register-convention)
 	* [Floating-point Register Convention](#floating-point-register-convention)
