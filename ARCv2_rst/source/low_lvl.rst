@@ -692,7 +692,7 @@ register set.
    +---------------+--------------------------------+-------------------------------------------+
    | r13 |--| r24  | Callee-saved register variable | |---|                                     |
    +---------------+--------------------------------+-------------------------------------------+
-   | r25           | Caller-saved scratch register  | gcc reserves r25 as Thread pointer if     |
+   | r25           | Callee-saved scratch register  | gcc reserves r25 as Thread pointer if     |
    |               |                                | Thread local storage is enabled           |
    +---------------+--------------------------------+-------------------------------------------+
    | r26           | Small-data base register (gp)  | |---|                                     |
