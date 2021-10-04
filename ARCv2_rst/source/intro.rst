@@ -219,4 +219,6 @@ Reference Documents
    |               |                |   :code:`r25` as Thread pointer if     |
    |               |                |   Thread local storage is enabled.     |
    +---------------+----------------+----------------------------------------+
+   | 4092-006      | September 2021 |   Correction: r25 is callee-saved.     |
+   +---------------+----------------+----------------------------------------+
  
