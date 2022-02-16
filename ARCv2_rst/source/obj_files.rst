@@ -209,7 +209,7 @@ bits8
 
 Specifies 8 bits of data in a separate byte.
    
-.. figure::  ../images/bits8_reloc_field.png
+.. figure::  ../images/bits8_reloc_field.PNG
    :align: center
    
    bits8 Relocatable Field
@@ -220,7 +220,7 @@ bits16
  
 Specifies 16 bits of data in a separate byte.
    
-.. figure::  ../images/bits16_reloc_field.png
+.. figure::  ../images/bits16_reloc_field.PNG
    :align: center
    
    bits16 Relocatable Field
@@ -231,7 +231,7 @@ bits24
    
 Specifies 24 bits of data in a separate byte.
    
-.. figure::  ../images/bits24_reloc_field.png
+.. figure::  ../images/bits24_reloc_field.PNG
    :align: center
 
    bits24 Relocatable Field
@@ -246,7 +246,7 @@ field, which specifies a seven-bit unsigned displacement within a
 bits 2-0 and bits 6-3 of the instruction stored in bits 7-4.
 
 .. _disp7u_rf:
-.. figure::  ../images/disp7u_reloc_field.png
+.. figure::  ../images/disp7u_reloc_field.PNG
    :align: center
 
    disp7u Relocatable Field
@@ -259,7 +259,7 @@ which specifies a nine-bit signed displacement within a 32-bit
 instruction word.
 
 .. _disp9_rf:
-.. figure::  ../images/disp9_reloc_field.png
+.. figure::  ../images/disp9_reloc_field.PNG
    :align: center
 
    disp9 Relocatable Field
@@ -272,7 +272,7 @@ which specifies a nine-bit signed displacement within a 32-bit
 instruction word.
 
 .. _disp9ls_rf:
-.. figure::  ../images/disp9ls_reloc_field.png
+.. figure::  ../images/disp9ls_reloc_field.PNG
    :align: center
 
    disp9ls Relocatable Field
@@ -286,7 +286,7 @@ which specifies a 9-bit signed displacement within a 16-bit
 instruction word.
 
 .. _disps_rf:
-.. figure::  ../images/disp9s_reloc_field.png
+.. figure::  ../images/disp9s_reloc_field.PNG
    :align: center
 
    disp9s Relocatable Field
@@ -300,7 +300,7 @@ which specifies a 10-bit unsigned displacement within a 16-bit
 instruction word.
 
 .. _disp10u_rf:
-.. figure::  ../images/disp10u_reloc_field.png
+.. figure::  ../images/disp10u_reloc_field.PNG
    :align: center
 
    disp10u Relocatable Field
@@ -315,7 +315,7 @@ instruction word. The displacement is to a 32-bit-aligned location
 and thus bits 0 and 1 of the displacement are not explicitly stored.
 
 .. _disp_13s_rf:
-.. figure::  ../images/disp13s_reloc_field.png
+.. figure::  ../images/disp13s_reloc_field.PNG
    :align: center
 
    disp13s Relocatable Field
@@ -332,7 +332,7 @@ Note that the 32-bit instruction containing this relocation field may
 be either 16-bit-aligned or 32-bit-aligned.
 
 .. _disp21h_rf:
-.. figure::  ../images/disp21h_reloc_field.png
+.. figure::  ../images/disp21h_reloc_field.PNG
    :align: center
 
    disp21h Relocatable Field
@@ -350,7 +350,7 @@ Note that the 32-bit instruction containing this relocation
 field may be either 16-bit-aligned or 32-bit-aligned.
 
 .. _disp21w_rf:
-.. figure::  ../images/disp21w_reloc_field.png
+.. figure::  ../images/disp21w_reloc_field.PNG
    :align: center
 
    disp21w Relocatable Field
@@ -367,7 +367,7 @@ Note that the 32-bit instruction containing this relocation field
 may be either 16-bit-aligned or 32-bit-aligned.
 
 .. _disp25h_rf:
-.. figure::  ../images/disp25h_reloc_field.png
+.. figure::  ../images/disp25h_reloc_field.PNG
    :align: center
 
    disp25h Relocatable Field
@@ -384,7 +384,7 @@ Note that the 32-bit instruction containing this relocation field
 may be either 16-bit-aligned or 32-bit-aligned.
 
 .. _disp25w_rf:
-.. figure::  ../images/disp25w_reloc_field.png
+.. figure::  ../images/disp25w_reloc_field.PNG
    :align: center
 
    disp25w Relocatable Field
@@ -400,7 +400,7 @@ and thus bits 0 and 1 of the displacement are not explicitly stored.
 This means that effectively the field is bits 10-2, stored at 8-0.
 
 .. _disps9_rf:
-.. figure::  ../images/disps9_reloc_field.png
+.. figure::  ../images/disps9_reloc_field.PNG
    :align: center
 
    disps9 Relocatable Field
@@ -415,7 +415,7 @@ instruction word. The high six bits are in 0-5, and the low six bits
 are in 6-11.
 
 .. _disps12_rf:
-.. figure::  ../images/disps12_reloc_field.png
+.. figure::  ../images/disps12_reloc_field.PNG
   :align: center
 
   disps12 Relocatable Field
@@ -429,7 +429,7 @@ is four bytes unless otherwise specified. See also :numref:`word32le_rf` and
 :numref:`word32be_rf`.
 
 .. _word32_rf:
-.. figure::  ../images/word32_reloc_field.png
+.. figure::  ../images/word32_reloc_field.PNG
    :align: center
 
    disps12 Relocatable Field
@@ -444,7 +444,7 @@ halfwords are stored in the native endian orientation of the machine
 (little endian in :numref:`word32le_rf`). 
 
 .. _word32le_rf:
-.. figure::  ../images/word32me_reloc_LE.png
+.. figure::  ../images/word32me_reloc_LE.PNG
    :align: center
 
    word32me Relocatable Field on a Little-Endian Machine
@@ -459,7 +459,7 @@ halfwords are stored in the native endian orientation of the machine
 (big endian in :numref:`word32be_rf`). 
 
 .. _word32be_rf:
-.. figure::  ../images/word32me_reloc_BE.png
+.. figure::  ../images/word32me_reloc_BE.PNG
    :align: center
 
    word32me Relocatable Field on a Big-Endian Machine
