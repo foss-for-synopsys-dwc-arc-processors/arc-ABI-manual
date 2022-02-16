@@ -34,7 +34,7 @@ shared object file must be 0x10000.
 an executable program linked with a base address of 0x10000000.
 
 .. _exe_file_layout:
-.. figure::  ../images/exe_file_layout.png
+.. figure::  ../images/exe_file_layout.PNG
    :align: center
    
    Executable File Layout
@@ -95,7 +95,7 @@ not logically part of the process image; whether the system expunges
 them is unspecified. The memory image for the program above is shown 
 here, assuming pages with a size of 4096 (0x1000) bytes.  
  
-.. figure::  ../images/virtual_addr.png
+.. figure::  ../images/virtual_addr.PNG
    :align: center
    
    Virtual Address 
@@ -360,36 +360,3 @@ If an error occurs and the dynamic linker cannot resolve the symbol, the dynamic
 program. Under lazy binding, this might occur at arbitrary times. Some applications cannot tolerate such 
 unpredictability. By turning off lazy binding, the dynamic linker forces the failure to occur during 
 process initialization, before the application receives control. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   
