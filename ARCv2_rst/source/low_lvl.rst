@@ -65,21 +65,21 @@ at least the start of the exponent. The figures show byte numbers
 in the upper right corners, and bit numbers in the lower corners. 
 
 .. _bit_byte_num_hw:
-.. figure::  ../images/bit_byte_hw.png
+.. figure::  ../images/bit_byte_hw.PNG
    :align: center
 
    Bit and Byte Numbering in Halfwords
 ..
 
 .. _bit_byte_num_w:  
-.. figure::  ../images/bit_byte_fw.png
+.. figure::  ../images/bit_byte_fw.PNG
    :align: center
    
    Bit and Byte Numbering in Words  
 ..
 
 .. _bit_byte_num_dw:
-.. figure::  ../images/bit_byte_dw.png
+.. figure::  ../images/bit_byte_dw.PNG
    :align: center
    
    Bit and Byte Numbering in Doublewords
@@ -107,14 +107,14 @@ If the ARCv2-based processor supports big-endian addressing, the data
 is stored in memory as shown in :numref:`64b_reg_BE`.   
 
 .. _64b_reg_LE:
-.. figure::  ../images/64b_regdata_LE.png
+.. figure::  ../images/64b_regdata_LE.PNG
    :align: center
    
    Sixty-Four-Bit Register Data in Byte-Wide Memory, Little-Endian
 ..
 
 .. _64b_reg_BE:  
-.. figure::  ../images/64b_regdata_BE.png
+.. figure::  ../images/64b_regdata_BE.PNG
    :align: center
    
    Sixty-Four-Bit Register Data in Byte-Wide Memory, Big-Endian   
@@ -126,7 +126,7 @@ Thirty-Two-Bit Data
 :numref:`reg_32b` shows the data representation in a general purpose register.
  
 .. _reg_32b:
-.. figure::  ../images/Reg_32b.png
+.. figure::  ../images/Reg_32b.PNG
    :align: center
    
    Register Containing Thirty-Two-Bit Data  
@@ -135,7 +135,7 @@ Thirty-Two-Bit Data
 :numref:`32b_LE` shows the little-endian representation in byte-wide memory. 
 
 .. _32b_LE:
-.. figure::  ../images/32b_data_bytewide_LE.png
+.. figure::  ../images/32b_data_bytewide_LE.PNG
    :align: center
    
    Thirty-Two-Bit Register Data in Byte-Wide Memory, Little-Endian  
@@ -144,7 +144,7 @@ Thirty-Two-Bit Data
 :numref:`32b_BE` shows the big-endian representation.
 
 .. _32b_BE:
-.. figure::  ../images/32b_data_bytewide_BE.png
+.. figure::  ../images/32b_data_bytewide_BE.PNG
    :align: center
    
    Thirty-Two-Bit Register Data in Byte-Wide Memory, Big-Endian  
@@ -162,7 +162,7 @@ using a byte address. This model is sometimes referred to as a
 data invariance principle. 
 
 .. _reg_16b:
-.. figure::  ../images/Reg_16b.png
+.. figure::  ../images/Reg_16b.PNG
    :align: center
    
    Register Containing Sixteen-Bit Data  
@@ -172,7 +172,7 @@ data invariance principle.
 16-bit data in byte-wide memory. 
 
 .. _16b_LE:
-.. figure::  ../images/16b_data_bytewide_LE.png
+.. figure::  ../images/16b_data_bytewide_LE.PNG
    :align: center
    
    Sixteen-Bit Register Data in Byte-Wide Memory, Little-Endian  
@@ -181,7 +181,7 @@ data invariance principle.
 :numref:`16b_BE` shows the big-endian representation.
 
 .. _16b_BE:
-.. figure::  ../images/16b_data_bytewide_BE.png
+.. figure::  ../images/16b_data_bytewide_BE.PNG
    :align: center
    
    Sixteen-Bit Register Data in Byte-Wide Memory, Big-Endian  
@@ -197,7 +197,7 @@ is accessed using a byte address. This model is sometimes referred
 to as a data invariance principle. 
 
 .. _reg_8b:
-.. figure::  ../images/Reg_8b.png
+.. figure::  ../images/Reg_8b.PNG
    :align: center
    
    Register Containing Eight-Bit Data  
@@ -209,7 +209,7 @@ address, n, of the byte is explicitly given and the byte is stored or
 read from that explicit address.
 
 .. _8b_bw:
-.. figure::  ../images/8b_data_bytewide.png
+.. figure::  ../images/8b_data_bytewide.PNG
    :align: center
    
    Eight-Bit Register Data in Byte-Wide Memory  
@@ -224,7 +224,7 @@ includes an immediate value specifying the bit to operate on. Bit
 manipulation instructions can operate on 8-bit, 16-bit, or 32-bit data 
 located within core registers because each bit is individually addressable.
 
-.. figure::  ../images/Reg_1b.png
+.. figure::  ../images/Reg_1b.PNG
    :align: center
    
    Register Containing One-Bit Data  
@@ -334,7 +334,7 @@ Structure smaller than a word:
 
 ..
 
-.. figure::  ../images/struct_smaller_word.png
+.. figure::  ../images/struct_smaller_word.PNG
    :align: center
    
    Byte-Aligned, Sizeof is 1  
@@ -352,7 +352,7 @@ No Padding:
    };   
 ..
   
-.. figure::  ../images/no_padding.png
+.. figure::  ../images/no_padding.PNG
    :align: center
    
    Word-Aligned, Sizeof is 8
@@ -368,7 +368,7 @@ Internal Padding:
    };  
 ..
 
-.. figure::  ../images/int_padding.png
+.. figure::  ../images/int_padding.PNG
    :align: center
    
    Halfword-Aligned, Sizeof is 4  
@@ -385,7 +385,7 @@ Internal and Tail Padding:
    };   
 ..
 
-.. figure::  ../images/int_tail_padding.png
+.. figure::  ../images/int_tail_padding.PNG
    :align: center
    
    Word-Aligned, Sizeof is 16
@@ -402,7 +402,7 @@ Union Allocation:
    };
 ..
 
-.. figure::  ../images/union_alloc.png
+.. figure::  ../images/union_alloc.PNG
    :align: center
    
    Word-Aligned, Sizeof is 4
@@ -505,7 +505,7 @@ The struct in the following example can be mapped as illustrated in or :numref:`
 ..
 
 .. _struct_LE:
-.. figure::  ../images/struct_map_LE.png
+.. figure::  ../images/struct_map_LE.PNG
    :align: center
    
    Structure Mapped in Little-Endian Orientation
@@ -523,7 +523,7 @@ corners for little-endian implementations. Bit numbers appear in the lower corne
 
 Bit numbering of :code:`0x01020304`:
 
-.. figure:: ../images/bit_numbering.png
+.. figure:: ../images/bit_numbering.PNG
    :align: center
    
    Bit Numbering
@@ -540,7 +540,7 @@ Bit-Field Allocation:
    };
 ..
 
-.. figure::  ../images/bitfield_alloc.png
+.. figure::  ../images/bitfield_alloc.PNG
    :align: center
    
    Word-Aligned, Sizeof is 4
@@ -560,7 +560,7 @@ Boundary Alignment:
    };
 ..
 
-.. figure::  ../images/boundary_align.png
+.. figure::  ../images/boundary_align.PNG
    :align: center
    
    Word-Aligned, Sizeof is 12
@@ -576,7 +576,7 @@ Storage Unit Sharing:
    };
 ..
 
-.. figure::  ../images/st_unit_share.png
+.. figure::  ../images/st_unit_share.PNG
    :align: center
    
    Halfword-Aligned, Sizeof is 2
@@ -592,7 +592,7 @@ Union Allocation:
    };
 ..
 
-.. figure::  ../images/union_alloc2.png
+.. figure::  ../images/union_alloc2.PNG
    :align: center
    
    Halfword-Aligned, Sizeof is 2
@@ -611,7 +611,7 @@ Unnamed Bitfields:
    };
 ..
 
-.. figure::  ../images/unnamed_bitfields.png
+.. figure::  ../images/unnamed_bitfields.PNG
    :align: center
    
    Byte-Aligned, Sizeof is 9
@@ -824,7 +824,7 @@ The caller's stack-pointer (sp) register does not need to be saved because the c
 able to restore the stack pointer for each function to its original value (for example, by 
 using an add instruction).
 
-.. figure:: ../images/stack_frame_1func_invoc.png
+.. figure:: ../images/stack_frame_1func_invoc.PNG
    :align: center
    
    Stack Frame for One Function Invocation
