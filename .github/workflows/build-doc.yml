@@ -1,0 +1,94 @@
+name: Build Documentation
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Documentation
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get install -y --no-install-recommends \
+            latexmk \
+            lmodern \
+            pandoc \
+            python3-sphinx \
+            texlive-fonts-recommended \
+            texlive-latex-extra \
+            texlive-latex-recommended
+
+      - name: Generate PDF
+        run: |
+          pandoc --from markdown -o arcv3-abi.pdf arcv3-elf.md
+          pandoc --from markdown -o arcv3-addendum.pdf arc-abi-addendum.md
+          make -C ARCv2_rst latexpdf
+          cp ARCv2_rst/build/latex/ARCv2_ABI.pdf arcv2-abi.pdf
+
+      - name: Upload documentation
+        uses: actions/upload-artifact@v2
+        with:
+          name: arc-abi-docs.zip
+          path: |
+            arcv2-abi.pdf
+            arcv3-abi.pdf
+            arcv3-addendum.pdf
+          retention-days: 7
+
+  draft-release:
+    name: Create draft release
+    needs: build
+    runs-on: ubuntu-20.04
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+    steps:
+      - name: Create timestamp
+        id: create_timestamp
+        run: |
+          echo "::set-output name=date::$(date --utc '+%Y%m%d')"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: draft-${{ steps.create_timestamp.outputs.date }}
+          release_name: draft-${{ steps.create_timestamp.outputs.date }}
+          draft: true
+          prerelease: true
+
+  upload-assets:
+    name: Upload ${{ matrix.artifact  }}
+    needs: draft-release
+    runs-on: ubuntu-20.04
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    strategy:
+      matrix:
+        artifact: [arcv2-abi.pdf, arcv3-abi.pdf, arcv3-addendum.pdf]
+
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: arc-abi-docs.zip
+
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.draft-release.outputs.upload_url }}
+          asset_path: ${{ matrix.artifact }}
+          asset_name: ${{ matrix.artifact }}
+          asset_content_type: application/pdf
