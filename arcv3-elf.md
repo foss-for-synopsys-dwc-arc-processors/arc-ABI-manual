@@ -847,7 +847,7 @@ Such initialization is typically performed by the default startup
 code.
 
  Relocation        |  Operator
-:------------------+ :--------------------------
+:------------------| :--------------------------
  R_ARC_SDA_LDST    | @sda - Instruction Specific
  R_ARC_SDA_LDST1   | @sda - Instruction Specific
  R_ARC_SDA_LDST2   | @sda - Instruction Specific
