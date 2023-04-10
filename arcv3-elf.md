@@ -78,7 +78,7 @@ ARCv3-based processors support either big-endian or little-endian byte
 ordering. However, this specification defines only the base-case
 little-endian (LSB) architecture.
 
-### Data Layout in Memory
+### Memory Alignment
 
 ARCv3-based processors access data memory using byte addresses and
 generally require that all memory addresses be aligned as follows:
@@ -88,6 +88,11 @@ generally require that all memory addresses be aligned as follows:
     -   32-bit boundaries on ARC32.
 -   32-bit words are aligned to 32-bit word boundaries.
 -   16-bit halfwords are aligned to 16-bit halfword boundaries.
+-   Any data element larger than 64 bits needs only to be aligned to
+    a 32-bit boundary.
+
+A function must be aligned to a minimum 32-bit boundary. A jump
+target/label needs to be aligned to a minimum 16-bit boundary.
 
 # <a name=register-convention></a> Register Convention
 
@@ -111,7 +116,7 @@ r29     | ilink        | Interrupt link reg     | Yes
 r30     | gp           | Global/Thread pointer  | Yes (can be used as GPR)
 r31     | blink        | Return address         | No
 r32-r57 | r32-r57      | Extension registers    | No
-r58     | acc0         | The only accumulator   | No
+r58     | acc          | The only accumulator   | No
 r59     | N.A.         | Reserved               | No
 r60     | lp_count     | Reserved               | -- (Unallocatable)
 r61     | slimm        | Signed-extended LIMM   | -- (Unallocatable)
@@ -121,7 +126,8 @@ r63     | pcl          | Program counter        | -- (Unallocatable)
 
 In the standard ABI, procedures should not modify the integer register
 Global/Thread Pointer (`gp`), because signal handlers may rely upon
-their values.
+their values.  However, for the bare-metal applications the `gp`
+register can be used as a regular general purpose register.
 
 The `pcl` register (`r63`) contains the four-byte-aligned value of the
 program counter.
@@ -137,7 +143,13 @@ preserved. The EV processors reserve r25.
 
 Address-generation unit (AGU) registers are caller-saved scratch
 registers. These registers exist on processors configured with DSP and
-AGU extensions.
+AGU extensions. The AGU registers are mappend onto Extension Registers.
+
+:memo: Register pairs
+
+When configured with double load/store support, even-odd register
+pairs (e.g., r0r1) are used to hold double the CPU word data (i.e.,
+64-bit for ARC32 and 128-bit for ARC64).
 
 Floating-point Register Convention <a name=floating-point-register-convention>
 -------------------------------------------------------------------------
@@ -520,13 +532,15 @@ for copying the contents of registers used to pass variadic arguments to the
 vararg save area, which must be contiguous with arguments passed on the stack.
 The `va_start` macro initializes its `va_list` argument to point to the start
 of the vararg save area.  The `va_arg` macro will increment its `va_list`
-argument according to the size of the given type, taking into account the
-rules about 2x64 aligned arguments being passed in "aligned" register pairs.
+argument according to the size of the given type.
 
 ## <a name=stack-frame></a> Stack Frame
 
 This section describes the layout of the stack frame and registers
-that must be saved by the callee prolog code.
+that must be saved by the callee prolog code. The stack grows
+downward (i.e., towards lower addresses). The stack pointr points to
+the last used slot. The frame pointer points to the saved frame
+pointer near the top of the stack frame.
 
 ### The Stack-Pointer Register
 
@@ -545,15 +559,23 @@ reference stack-frame-based variables.
 ### The Frame-Pointer Register
 
 The frame pointer register (fp) is used when a function calls alloca()
-to allocate space on the stack, and stack-frame-based variables must be
-accessed.
+to allocate space on the stack, and stack-frame-based variables must
+be accessed. The frame pointer is also provided for debugger
+support. If you are not using a debugger, you can optimize your code
+by eliminating the frame pointer, using the `-fomit-frame-pointer`
+compiler option. When the frame pointer is eliminated, register fp is
+available as a temporary register.
 
-### The Callee's Prolog Code
+### Call Saved Registers
 
-The callee's prolog code saves all registers that need to be saved.
-Saved values include the value of the caller's frame-pointer register,
-`blink` (return address) register, callee-saved registers used by the
-function.
+The callee's prolog code saves all registers that need to be
+saved. The compiler is responsible for generating code to save
+registers that need to be saved on the entry to a function, and
+restore the registers on exit. if there are any such registers, they
+are saved on the stack, from high to low addresses, in the following
+order: `f31`->`f0` (if they exists),`r59`->`r32` (if they exits),
+`r30`, `r27` (if not used as frame pointer), `r26`->`r0`, `blink` (if
+required), and `fp` (if required).
 
 :memo: Note
 
@@ -569,29 +591,52 @@ because the compiler is able to restore the stack pointer for each
 function to its original value (for example, by using an add
 instruction).
 
-ARC64 stack frame generated by GNU compiler looks like this:
+:memo: Note
+
+Stack space is not allocated for registers that are not saved.
+
+### Generic Stacks
+
+ARC64 stack frame generated by GNU compiler in function `a()` just
+prior to calling function `b()` looks like this:
 
 	+-------------------------------+
 	|                               |
-	|  incoming stack arguments     |
+	|  outgoing stack arguments     |
+	|                               |
+	+-------------------------------+ <-- stack pointer (aligned)
+	|                               |
+	|                               |
+	|       lower addresses         |
+
+
+
+ARC64 stack frame generated by GNU compiler in function `b()` just
+after execution prologue.
+
+
+	+-------------------------------+
+	|                               | *  Allocated and freed by a()
+	|  incoming stack arguments     | *  (i.e., the calling function)
 	|                               |
 	+-------------------------------+ <-- incoming stack pointer (aligned)
+	|                               |
+	|  Calee saved registers        | *  Allocated and freed by b()
+	|                               | *  (i.e., the current function)
+	+-------------------------------+
+	|  Return address register      |
+	|  (if required)                |
+	+-------------------------------+
+	|  Saved frame pointer register |
+	|  (if required)                |
+	+-------------------------------+ <-- (hard) frame_pointer_rtx
 	|                               |
 	|  callee-allocated save area   |
 	|  for register varargs         |
 	|                               |
 	+-------------------------------+ <-- arg_pointer_rtx
-	|                               |
-	|  GPR save area                |
-	|                               |
-	+-------------------------------+
-	|  Return address register      |
-	|  (if required)                |
-	+-------------------------------+
-	|  FP (if required)             |
-	+-------------------------------+ <-- (hard) frame_pointer_rtx
-	|                               |
-	|  Local variables              |
+	|  Allocated space for local    |
+	|  variables and temporaries    |
 	|                               |
 	+-------------------------------+
 	|  outgoing stack arguments     |
@@ -601,6 +646,70 @@ ARC64 stack frame generated by GNU compiler looks like this:
 Dynamic stack allocations such as alloca insert data after local
 variables.  The stack frame must be maintained using the frame pointer
 (`fp`) instead of the stack pointer (`sp`).
+
+Each section of the current frame is aligned to a 32-bit boundary for
+ARC32, and 64-bit boundary for ARC64. The ABI requires the stack
+pointer be 32-bit (64-bit for ARC64) aligned at all times.
+
+
+### Stack Frame for a Function With alloca()
+
+The ARC stack frame implementation provides support for the alloca()
+function as it is implemented by the gcc compiler. The space allocated
+by alloca() replaces the outgoing arguments and the outgoing arguments
+get new space allocated at the bottom of the frame.
+
+	+-------------------------------+ * higher addresses
+	|                               |
+	|  Memory allocated by alloca() |
+	|                               |
+	+-------------------------------+
+	|  outgoing stack arguments     |
+	|                               |
+	+-------------------------------+ <-- SP (aligned)
+					  * lower addresses
+
+:memo: Note
+
+The GCC compiler maintains a frame pointer for any function that calls
+`alloca()`, even if `-fomit-frame-pointer` is specified.
+
+### Stack Frame for a Function With Variable Arguments
+
+Functions that take variable arguments (varargs) still have their
+first `8 * BYTES_PER_WORD` bytes of arguments ariving in registers
+`r0` through `r7`, just like other functions. In order for varargs to
+work, functions that take variable arguments allocate `8 *
+BYTES_PER_WORD` extra bytes of storage on the stack. They copy to the
+stack the these first bytes of their arguments from registers `r0`
+through `r7`.
+
+	+-------------------------------+ * higher addresses
+	|                               | *  Allocated and freed by a()
+	|  Incoming stack arguments     | *  (i.e., the calling function)
+	|                               |
+	+-------------------------------+ <-- incoming SP (aligned)
+	|                               |
+	|     Prologue saved regs       |
+	|                               |
+	+-------------------------------+
+	|          Copy of r7           |
+	|          Copy of r6           |
+	|          Copy of r5           |
+	|          Copy of r4           |
+	|          Copy of r3           |
+	|          Copy of r2           |
+	|          Copy of r1           |
+	|          Copy of r0           |
+	+-------------------------------+
+	|  Allocated space for temps    |
+	+-------------------------------+
+	|  outgoing stack arguments     |
+	|                               |
+	+-------------------------------+ <-- SP (aligned)
+					  * lower addresses
+
+### Stack Frame for a Function With Structures Passed by Value
 
 # <a name=elf-object-file></a> ELF Object Files
 
@@ -672,10 +781,10 @@ User's Guide*.
 * .arcextmap           Debugging information relating to processor extensions
 
 * .bss                 Uninitialized variables that are not const-qualified
-                       (startup code normally sets .bss to all zeros)
+		       (startup code normally sets .bss to all zeros)
 
 * .ctors               Contains an array of functions that are called at startup
-                       to initialize elements such as C++ static variables
+		       to initialize elements such as C++ static variables
 
 * .data                Static variables (local and global)
 
@@ -684,26 +793,26 @@ User's Guide*.
 * .heap                Uninitialized memory used for the heap
 
 * .initdata            Initialized variables and code (usually compressed) to be
-                       copied into place during run-time startup
+		       copied into place during run-time startup
 
 * .offsetTable         Overlay-offset table
 
 * .overlay             All overlays defined in the executable
 
 * .overlayMultiLists   Token lists for functions that appear in more than one
-                       overlay group
+		       overlay group
 
 * .pictable            Table for relocating pre-initialized data when generating
-                       position-independent code and data
+		       position-independent code and data
 
 * .rodata\_in\_data    Read-only string constants when -Hharvard or -Hccm is
-                       specified.
+		       specified.
 
 * .sbss                Uninitialized data, set to all zeros by startup code and
-                       directly accessible from the %gp register
+		       directly accessible from the %gp register
 
 * .sdata               Initialized small data, directly accessible from the %gp
-                       register, and small uninitialized variables
+		       register, and small uninitialized variables
 
 * .stack               Stack information
 
@@ -736,6 +845,18 @@ register. If the program uses small data, program startup must
 initialize the `gp` register to the address of symbol `_SDA_BASE_`
 Such initialization is typically performed by the default startup
 code.
+
+ Relocation        |  Operator
+:------------------+ :--------------------------
+ R_ARC_SDA_LDST    | @sda - Instruction Specific
+ R_ARC_SDA_LDST1   | @sda - Instruction Specific
+ R_ARC_SDA_LDST2   | @sda - Instruction Specific
+ R_ARC_SDA16_LD    | @sda - Instruction Specific
+ R_ARC_SDA16_LD1   | @sda - Instruction Specific
+ R_ARC_SDA16_LD2   | @sda - Instruction Specific
+ R_ARC_SDA16_ST2   | @sda - Instruction Specific
+ R_ARC_SDA32_ME    | @sda - Instruction Specific
+
 
 ### Register Information
 
@@ -896,76 +1017,76 @@ relocations.
 * bits24 Specifies 24 bits of data in a separate byte.
 
 * disp7u Secifies a seven-bit unsigned displacement within a 16-bit
-         instruction word, with bits 2-0 of the instruction stored in
-         bits 2-0 and bits 6-3 of the instruction stored in bits 7-4.
+	 instruction word, with bits 2-0 of the instruction stored in
+	 bits 2-0 and bits 6-3 of the instruction stored in bits 7-4.
 
 * disp9 Specifies a nine-bit signed displacement within a 32-bit
-        instruction word.
+	instruction word.
 
 * disp9ls Specifies a nine-bit signed displacement within a 32-bit
-        instruction word.
+	instruction word.
 
 * disp9s Specifies a 9-bit signed displacement within a 16-bit
-        instruction word.
+	instruction word.
 
 * disp10u Specifies a 10-bit unsigned displacement within a 16-bit
   instruction word.
 
 * disp13s Specifies a signed 13-bit displacement within a 16-bit
-          instruction word. The displacement is to a 32-bit-aligned
-          location and thus bits 0 and 1 of the displacement are not
-          explicitly stored.
+	  instruction word. The displacement is to a 32-bit-aligned
+	  location and thus bits 0 and 1 of the displacement are not
+	  explicitly stored.
 
 * disp21h Specifies a 21-bit signed displacement within a 32-bit
-          instruction word. The displacement is to a halfword-aligned
-          target location, and thus bit 0 of the displacement is not
-          explicitly stored. Note that the 32-bit instruction
-          containing this relocation field may be either
-          16-bit-aligned or 32-bit-aligned.
+	  instruction word. The displacement is to a halfword-aligned
+	  target location, and thus bit 0 of the displacement is not
+	  explicitly stored. Note that the 32-bit instruction
+	  containing this relocation field may be either
+	  16-bit-aligned or 32-bit-aligned.
 
 * disp21w Specifies a signed 21-bit displacement within a 32-bit
-          instruction word. The displacement is to a 32-bit-aligned
-          target location, and thus bits 0 and 1 of the displacement
-          are not explicitly stored. Note that the 32-bit instruction
-          containing this relocation field may be either
-          16-bit-aligned or 32-bit-aligned.
+	  instruction word. The displacement is to a 32-bit-aligned
+	  target location, and thus bits 0 and 1 of the displacement
+	  are not explicitly stored. Note that the 32-bit instruction
+	  containing this relocation field may be either
+	  16-bit-aligned or 32-bit-aligned.
 
 * disp25h Specifies a 25-bit signed displacement within a 32-bit
-          instruction word. The displacement is to a halfword-aligned
-          target location, and thus bit 0 is not explicitly
-          stored. Note that the 32-bit instruction containing this
-          relocation field may be either 16-bit-aligned or
-          32-bit-aligned.
+	  instruction word. The displacement is to a halfword-aligned
+	  target location, and thus bit 0 is not explicitly
+	  stored. Note that the 32-bit instruction containing this
+	  relocation field may be either 16-bit-aligned or
+	  32-bit-aligned.
 
 * disp25w Specifies a 25-bit signed displacement within a 32-bit
-          instruction word. The displacement is to a 32-bit-aligned
-          target location, and thus bits 0 and 1 are not explicitly
-          stored. Note that the 32-bit instruction containing this
-          relocation field may be either 16-bit-aligned or
-          32-bit-aligned.
+	  instruction word. The displacement is to a 32-bit-aligned
+	  target location, and thus bits 0 and 1 are not explicitly
+	  stored. Note that the 32-bit instruction containing this
+	  relocation field may be either 16-bit-aligned or
+	  32-bit-aligned.
 
 * disps9 Specifies a nine-bit signed displacement within a 16-bit
-         instruction word. The displacement is to a 32-bit-aligned
-         location, and thus bits 0 and 1 of the displacement are not
-         explicitly stored. This means that effectively the field is
-         bits 10-2, stored at 8-0.
+	 instruction word. The displacement is to a 32-bit-aligned
+	 location, and thus bits 0 and 1 of the displacement are not
+	 explicitly stored. This means that effectively the field is
+	 bits 10-2, stored at 8-0.
 
 * disps12 Specifies a twelve-bit signed displacement within a 32-bit
-          instruction word. The high six bits are in 0-5, and the low
-          six bits are in 6-11.
+	  instruction word. The high six bits are in 0-5, and the low
+	  six bits are in 6-11.
 
 * word32 Specifies a 32-bit field occupying four bytes, the alignment
-         of which is four bytes unless otherwise specified.
+	 of which is four bytes unless otherwise specified.
 
 * word32me (Little-Endian) Specifies a 32-bit field in middle-endian
-          Storage. Bits 31..16 are stored first, and bits 15..0 are
-          stored adjacently. The individual halfwords are stored in
-          the native endian orientation of the machine.
+	  Storage. Bits 31..16 are stored first, and bits 15..0 are
+	  stored adjacently. The individual halfwords are stored in
+	  the native endian orientation of the machine.
 
 * word32me (Big-Endian) Specifies a 32-bit field in middle-endian
-          Storage. Bits 31..16 are stored first, and bits 15..0 are
-          stored adjacently. The individual halfwords are stored in
-          the native endian orientation of the machine.
+	  Storage. Bits 31..16 are stored first, and bits 15..0 are
+	  stored adjacently. The individual halfwords are stored in
+	  the native endian orientation of the machine.
 
 ### Address Calculation Symbols
 
@@ -1025,6 +1146,53 @@ or alternatively:
    orl_s    r0,r0,@symbol@lo  # R_ARC_LO32_ME (symbol)
 ```
 
+## Linux Toolchain Relocation Information
+
+Dynamic relocations can appear in the runtime relocation sections of
+executables and shared objects, but never appear in object files. No
+other relocations are dynamic.
+
+ ELF Reloc Type     | Description
+:------------------ | :---------------
+ R_ARC_TLS_DTPMOD   | TLS relocation (dynamic)
+ R_ARC_TLS_DTPOFF   | TLS relocation
+ R_ARC_COPY         | Runtime relocation
+ R_ARC_GLOB_DAT     | GOT relocation
+ R_ARC_JMP_SLOT     | Runtime relocation
+ R_ARC_RELATIVE     | Runtime relocation
+
+A global offset table (GOT) entry referenced using ...., must be
+resloved at load time. A GOT entry referenced only using ...., can
+initially reger to a procedure linkage table (PLT) entry and then be
+resolved lazily.
+
+Several new assembler operators are defined to generte the
+Linux-specific relocations, as listed in the next table.
+
+ Relocation           |  Operator
+:---------------------| :----------
+ R_ARC_GOTOFF         |  @gotoff
+ R_ARC_GOTPC32        |  @gotpc
+ R_ARC_PLT32          |  @plt
+ R_ARC_PC32           |  @pcl
+ R_ARC_TLS_GD_GOT     |  @tlsgd
+ R_ARC_TLS_IE_GOT     |  @tlsie
+ R_ARC_TLS_LE_32      |  @tpoff
+ R_ARC_TLS_TLS_DTPOFF |  @dtpoff
+ R_ARC_TLS_PLT32      |  @plt34
+
+### Copy Relocation
+
+The R_ARC_COPY relocation is used to mark variables allocated in the
+executable that are defined in a shared library. The variable's
+initial value is copied from the shared library to the relocated
+location.
+
+### Jump Slot Relocation
+
+Jump slot relocations (R_ARC_JMP_SLOT) are used for the PLT.
+
+
 ### Global Offset Table
 
 For position independent code in dynamically linked objects, each
@@ -1050,9 +1218,7 @@ reside at fixed virtual addresses.
 
 The global offset table normally resides in the .got ELF section in an
 executable or shared object. The symbol `_GLOBAL_OFFSET_TABLE_` can be
-used to access the table. This symbol can reside in the middle of the
-.got section, allowing both positive and negative subscripts into the
-array of addresses.
+used to access the table.
 
 The entry at `_GLOBAL_OFFSET_TABLE_[0]` is reserved for the address of
 the dynamic structure, referenced with the symbol `_DYNAMIC`. This
@@ -1063,13 +1229,10 @@ The entry at `_GLOBAL_OFFSET_TABLE_[1]` is reserved for use by the
 dynamic loader. The entry at `_GLOBAL_OFFSET_TABLE_[2]` is reserved to
 contain a dynamic the lazy symbol-resolution entry point.
 
-If no explicit .pltgot is used, `_GLOBAL_OFFSET_TABLE_[3 .. 3+F]` are
-used for resolving function references, and
-`_GLOBAL_OFFSET_TABLE_[3+F+1 .. last]` are for resolving data
-references. Addressability to the global offset table (GOT) is
-accomplished using direct PC-relative addressing. There is no need for a
-function to materialize an explicit base pointer to access the GOT.
-GOT-based variables can be referenced directly using a single eight-byte
+Addressability to the global offset table (GOT) is accomplished using
+direct PC-relative addressing. There is no need for a function to
+materialize an explicit base pointer to access the GOT.  GOT-based
+variables can be referenced directly using a single eight-byte
 long-intermediate-operand instruction:
 
 ```asm
@@ -1276,11 +1439,17 @@ segments, rather they are copied or allocated to the thread local
 storage space of newly created threads.  See
 [https://www.akkadia.org/drepper/tls.pdf](https://www.akkadia.org/drepper/tls.pdf).
 
-In The ELF Thread Local Storage Model, TLS offsets are used instead of
-pointers.  The ELF TLS sections are initialization images for the
-thread local variables of each new thread. A TLS offset defines an
-offset into the dynamic thread vector which is pointed to by the TCB
-(Thread Control Block) held in the `gp` register.
+The ARC processor uses Variant I model for thread-local storage. The
+first word is the dynamic thread pointer (DTV) pointer and the second
+word is reserved.
+
+In the GNU linux toolchain, the thread pointer is always keept in
+`gp` register.
+
+The TLS sections are initialization images for the thread local
+variables of each new thread. A TLS offset defines an offset into the
+dynamic thread vector which is pointed to by the TCB (Thread Control
+Block) held in the `gp` register.
 
 There are various thread local storage models for statically allocated
 or dynamically allocated thread local storage. The following table
@@ -1297,33 +1466,9 @@ The program linker in the case of static TLS or the dynamic linker in
 the case of dynamic TLS allocate TLS offsets for storage of thread
 local variables.
 
+### Global Dynamic Model
 
-### Local Exec
-
-Local exec is a form of static thread local storage. This model is
-used when static linking as the TLS offsets are resolved during
-program linking.
-
-- Compiler flag `-ftls-model=local-exec`
-- Variable attribute: `__thread int i __attribute__((tls_model("local-exec")));`
-
-
-### Initial Exec
-
-Initial exec is is a form of static thread local storage that can be
-used in shared libraries that use thread local storage. TLS
-relocations are performed at load time. `dlopen` calls to libraries
-that use thread local storage may fail when using the initial exec
-thread local storage model as TLS offsets must all be resolved at load
-time. This model uses the GOT to resolve TLS offsets.
-
-- Compiler flag `-ftls-model=initial-exec`
-- Variable attribute: `__thread int i __attribute__((tls_model("initial-exec")));`
-
-### Global Dynamic
-
-ARCv3 local dynamic and global dynamic TLS models generate equivalent
-object code.  The Global dynamic thread local storage model is used
+The Global dynamic thread local storage model is used
 for PIC Shared libraries and handles the case where more than one
 library uses thread local variables, and additionally allows libraries
 to be loaded and unloaded at runtime using `dlopen`.  In the global
@@ -1334,24 +1479,61 @@ at runtime.
 - Compiler flag `-ftls-model=global-dynamic`
 - Variable attribute: `__thread int i __attribute__((tls_model("global-dynamic")));`
 
-Example assembler load and store of a thread local variable `i` using the
-`la.tls.gd` pseudoinstruction, with the emitted TLS relocations in comments:
-
-In the Global Dynamic model, the runtime library provides the `__tls_get_addr` function:
-
-```
-extern void *__tls_get_addr (tls_index *ti);
+```asm
+       add   r0,pcl,@x@tlsgd        # R_ARC_TLS_GD_GOT x
+       bl    @__tls_get_addr@plt    # R_ARC_S21_PCREL_PLT __tls_get_addr
+       # Address of x in r0
 ```
 
-where the type tls index are defined as:
+In the global dynamic model, a two-word GOT slot is allocated for x,
+as shown bellow:
 
+GOT entry | Relocation
+:---------| :----------
+GOT[n]    | R_ARC_TLS_DTPMOD x
+GOT[n+1]  | R_ARC_TLS_DTPOFF x
+
+### Local Dynamic Model
+
+For ARC processor, the local dynamic model falls back to global dynamic model.
+
+### Initial Exec
+
+Initial exec is is a form of static thread local storage that can be
+used in shared libraries. TLS relocations are performed at load time.
+
+- Compiler flag `-ftls-model=initial-exec`
+- Variable attribute: `__thread int i __attribute__((tls_model("initial-exec")));`
+
+```asm
+       ld   r0,[pcl, @x@tlsie]   # R_ARC_TLS_IE_GOT x
+       add  r0,r0,gp
+       # Address of x in r0
 ```
-typedef struct
-{
-  unsigned long int ti_module;
-  unsigned long int ti_offset;
-} tls_index;
+
+This model uses a single GOT entry to resolve TLS offsets.
+
+GOT entry | Relocation
+:---------| :----------
+GOT[n]    | R_ARC_TLS_DTPOFF x
+
+
+### Local Exec Model
+
+Local exec is a form of static thread local storage. This model is
+used when static linking as the TLS offsets are resolved during
+program linking.
+
+- Compiler flag `-ftls-model=local-exec`
+- Variable attribute: `__thread int i __attribute__((tls_model("local-exec")));`
+
+```asm
+       add  r0,gp, @x@tpoff    # R_ARC_TLS_LE_32 x
+       # Address of x in r0
 ```
+
+There is no GOT slot associated with the local exec model.
+
 
 ## <a name=program-header-table></a>Program Header Table
 
