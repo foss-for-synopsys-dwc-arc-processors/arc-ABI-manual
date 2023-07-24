@@ -1101,12 +1101,14 @@ S         | Base address of a shared object loaded into memory
 G         | The offset into the global offset table at which the address of the relocated symbol will reside during execution
 GOT       | Offset of the symbol into the GOT (Global Offset Table)
 L         | The place (section offset or address) of the PLT entry for a symbol
-MES       | Middle-Endian Storage
+ME        | Middle-Endian Storage
 P         | The place (section offset or address) of the storage unit being relocated (computed using r\_offset).
 S         | Value of the symbol in the symbol table
 SECTSTART | Start of the current section. Used in calculating offset types.
 \_SDA\_BASE | Base of the small-data area.
 JLI       | Base of the JLI table.
+TLS\_TBSS | Size of the Thread Control Block (TCB), or section alignment requirement.
+TLS\_REL  | Base of the TLS section.
 
 
 A relocation entry\'s r\_offset value designates the offset or virtual
